@@ -362,6 +362,9 @@ class TrainPipeline():
                         )
 
                         if len(self.data_buffer) < self.batch_size * 5:
+                            print('rank {}: '.format(rank), 
+                                'Buffer size: {}. Minimum: {}'.format(len(self.data_buffer), self.batch_size * 5)
+                            )
                             time.sleep(10)
                             continue
                         else:
