@@ -153,7 +153,7 @@ class TrainPipeline():
                 rank=rank,
                 show_play=False,
                 show_probs_value=False,
-                show_play_UI=True,
+                show_play_UI=False,
                 calculate_performance=True)
             
             play_data = list(play_data)[:]
@@ -222,7 +222,7 @@ class TrainPipeline():
 
         return loss, entropy
 
-    def policy_evaluate(self, n_games=10, num=0, model1='tmp/current_policy.model', model2='model_15_15_5/best_policy.model'):
+    def policy_evaluate(self, n_games=10, num=0, model1='tmp/current_policy.model', model2='model/best_policy.model'):
         # mcts_player = self.mcts_player
         mcts_player = MCTSPlayer(policy_value_function=self.policy_value_net.policy_value_fn_random,
                                         action_fc=self.policy_value_net.action_fc_test,
@@ -238,9 +238,6 @@ class TrainPipeline():
                                         c_puct=self.c_puct,
                                         n_playout=self.n_playout,
                                         is_selfplay=False)
-
-        # print("---"*25, mcts_player.mcts._n_playout)
-        # print("---"*25, test_player.mcts._n_playout)
 
         win_cnt = defaultdict(int)
         for i in range(n_games):
@@ -260,7 +257,7 @@ class TrainPipeline():
                 policy_value_net=self.policy_value_net,
                 show_play=False,
                 show_probs_value=False,
-                show_play_UI=True,
+                show_play_UI=False,
                 calculate_performance=True)
 
             win_cnt[winner] += 1
@@ -270,8 +267,6 @@ class TrainPipeline():
                 'Win: {},  Lose: {},  Tie:{}, Win Ratio:{}'.format(
                 win_cnt[1], win_cnt[2], win_cnt[-1], win_ratio)
             )
-
-        # win_ratio = 1.0*(win_cnt[1] + 0.5*win_cnt[-1]) / n_games
         
         return win_ratio, win_cnt[1], win_cnt[2], win_cnt[-1]
 
@@ -286,7 +281,6 @@ class TrainPipeline():
             if not os.path.exists(fpath):
                 os.makedirs(fpath)
             shutil.move(srcfile, dstfile)
-            # print("move %s -> %s" % (srcfile, dstfile))
 
     def mycpfile(self, srcfile, dstfile):
         '''
@@ -299,7 +293,6 @@ class TrainPipeline():
             if not os.path.exists(fpath):
                 os.makedirs(fpath)
             shutil.copy(srcfile, dstfile)
-            # print("move %s -> %s" % (srcfile, dstfile))
 
     def run(self):
         if not os.path.exists('tmp'):
@@ -314,7 +307,6 @@ class TrainPipeline():
         if not os.path.exists('play_history/kifu_old'):
             os.makedirs('play_history/kifu_old')
 
-        # record time for each part
         start_time = time.time()
         retore_model_time = 0
         collect_data_time = 0
