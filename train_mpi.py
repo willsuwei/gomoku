@@ -39,7 +39,7 @@ class TrainPipeline():
         self.game = Game(self.board)
         # training params
         self.learn_rate = 1e-3
-        self.n_playout = 400  # num of simulations for each move
+        self.n_playout = 1  # num of simulations for each move
         self.c_puct = 5
         self.buffer_size = 500000
         # memory size, should be larger with bigger board
@@ -153,7 +153,7 @@ class TrainPipeline():
                 rank=rank,
                 show_play=False,
                 show_probs_value=False,
-                show_play_UI=False,
+                show_play_UI=True,
                 calculate_performance=True)
             
             play_data = list(play_data)[:]
@@ -206,7 +206,8 @@ class TrainPipeline():
 
             if print_out and (steps < 10 or (i % 20 == 0)):
                 # print some information, not too much
-                print('batch: {}/{}, length: {} '
+                print('rank {}:'.format(rank), 
+                      'batch: {}/{}, length: {} '
                       'kl:{:.5f}, '
                       'loss:{}, '
                       'entropy:{}, '
@@ -257,7 +258,7 @@ class TrainPipeline():
                 policy_value_net=self.policy_value_net,
                 show_play=False,
                 show_probs_value=False,
-                show_play_UI=False,
+                show_play_UI=True,
                 calculate_performance=True)
 
             win_cnt[winner] += 1
@@ -402,7 +403,7 @@ class TrainPipeline():
                     evaluate_time += time.time() - evaluate_start_time
                     if win_ratio >= threshold:
                         print("New best policy!!!!!!!!")
-                        # self.best_win_ratio = win_ratio
+                        self.best_win_ratio = win_ratio
                         
                         while True:
                             try:
@@ -426,7 +427,7 @@ class TrainPipeline():
                         print('rank {}: '.format(rank), 
                             'Now is {}. Sleep for {} seconds'.format(datetime.now(), 60*10-after+before)
                         )
-                        time.sleep(60*10-after+before)
+                        # time.sleep(60*10-after+before)
 
                 else:
                     #　self-play to collect data
