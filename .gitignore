@@ -3,3 +3,5 @@
 move_count.txt
 **/venv
 __pycache__
+tmp
+model

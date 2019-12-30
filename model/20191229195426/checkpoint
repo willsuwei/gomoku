@@ -1,5 +1,0 @@
-model_checkpoint_path: "best_policy.model"
-all_model_checkpoint_paths: "../../tmp/current_policy.model"
-all_model_checkpoint_paths: "../../tmp/20191229195426/current_policy.model"
-all_model_checkpoint_paths: "../best_policy.model"
-all_model_checkpoint_paths: "best_policy.model"
