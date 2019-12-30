@@ -248,7 +248,7 @@ class MCTSPlayer(object):
         '''
         self.mcts.update_with_move(-1) # reset the node
 
-    def get_action(self, board,is_selfplay=False,print_probs_value=0):
+    def get_action(self, board,is_selfplay=False,show_probs_value=False):
         '''
         get an action by mcts
         do not discard all the tree and retain the useful part

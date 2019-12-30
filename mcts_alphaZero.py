@@ -242,7 +242,7 @@ class MCTSPlayer(object):
         '''
         self.mcts.update_with_move(-1)
 
-    def get_action(self,board,is_selfplay,print_probs_value):
+    def get_action(self,board,is_selfplay,show_probs_value):
         '''
         get an action by mcts
         do not discard all the tree and retain the useful part
@@ -283,7 +283,7 @@ class MCTSPlayer(object):
             move_probs[list(acts)] = p
             # return the prob with temp=1
 
-            if print_probs_value and move_probs is not None:
+            if show_probs_value and move_probs is not None:
                 act_probs, value = self.policy_value_function(board,self.action_fc,self.evaluation_fc)
                 print('-' * 10)
                 print('value',value)

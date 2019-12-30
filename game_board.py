@@ -249,7 +249,7 @@ class Game(object):
             # print('\r\n') # new line
             print('\r')
 
-    def start_play(self, player1, player2, start_player=0, is_shown=1,print_prob =True):
+    def start_play(self, player1, player2, start_player=0, is_shown=1,show_probs_value =True):
         '''
         start a game between two players
         '''
@@ -269,7 +269,7 @@ class Game(object):
         while True:
             current_player = self.board.get_current_player()
             player_in_turn = players[current_player]
-            move,move_probs = player_in_turn.get_action(self.board,is_selfplay=False,print_probs_value=print_prob)
+            move,move_probs = player_in_turn.get_action(self.board,is_selfplay=False,show_probs_value=show_probs_value)
 
             self.board.do_move(move)
 
@@ -304,9 +304,9 @@ class Game(object):
                 UI.show_messages('AI\'s turn')
 
             if current_player == 1 and not end:
-                move, move_probs = AI.get_action(self.board, is_selfplay=False, print_probs_value=True)
+                move, move_probs = AI.get_action(self.board, is_selfplay=False, show_probs_value=True)
             else:
-                # move, move_probs = AI.get_action(self.board, is_selfplay=False, print_probs_value=1)
+                # move, move_probs = AI.get_action(self.board, is_selfplay=False, show_probs_value=1)
                 inp = UI.get_input()
                 if inp[0] == 'move' and not end:
                     if type(inp[1]) != int:
@@ -363,7 +363,7 @@ class Game(object):
                 start_player=0,
                 rank=0,
                 show_play=False, # set here
-                print_probs_value=False, # set here
+                show_probs_value=False, # set here
                 show_play_UI=False, # set here
                 calculate_performance=False, # set here
                 isEvaluate=False,
@@ -371,9 +371,9 @@ class Game(object):
                 model2='model_11_11_5/best_policy.model',
                 policy_value_net=None):
         # show_play=True # set here
-        # print_probs_value=True # set here
+        # show_probs_value=True # set here
         # show_play_UI=True # set here
-        calculate_performance=True, # set here
+        # calculate_performance=True, # set here
         
         self.board.init_board(start_player=start_player)
 
@@ -397,7 +397,7 @@ class Game(object):
                         except:
                             print("rank", rank, ":", 'Cannot load model. Retry in 3s...')
                             time.sleep(3)
-                move, move_probs = player1.get_action(self.board, is_selfplay=False, print_probs_value=print_probs_value)
+                move, move_probs = player1.get_action(self.board, is_selfplay=False, show_probs_value=show_probs_value)
             else:
                 if isEvaluate:
                     while True:
@@ -408,7 +408,7 @@ class Game(object):
                         except:
                             print("rank", rank, ":", 'Cannot load model. Retry in 3s...')
                             time.sleep(3)
-                move, move_probs = player2.get_action(self.board, is_selfplay=False, print_probs_value=print_probs_value)
+                move, move_probs = player2.get_action(self.board, is_selfplay=False, show_probs_value=show_probs_value)
                 
             # store the data
             states.append(self.board.current_state())
