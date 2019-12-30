@@ -1,3 +1,5 @@
 **/play_history
 **/.DS_Store
 move_count.txt
+**/venv
+__pycache__

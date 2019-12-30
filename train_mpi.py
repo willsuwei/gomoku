@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import random
 import numpy as np
 import os
@@ -17,9 +19,9 @@ from datetime import datetime
 # or just
 # mpiexec -np 43 python -u train_mpi.py
 
-#　MPI setting
+# MPI setting
 comm = MPI.COMM_WORLD
-# size = comm.Get_size()
+size = comm.Get_size()
 rank = comm.Get_rank()  # processing ID
 
 
@@ -148,7 +150,11 @@ class TrainPipeline():
             winner, play_data = self.game.start_training_play(
                 self.mcts_player,
                 self.mcts_player,
-                rank=rank)
+                rank=rank,
+                show_play=False,
+                show_probs_value=False,
+                show_play_UI=True,
+                calculate_performance=True)
             
             play_data = list(play_data)[:]
             self.episode_len = len(play_data)
@@ -251,7 +257,11 @@ class TrainPipeline():
                 isEvaluate=True,
                 model1=model1,
                 model2=model2,
-                policy_value_net=self.policy_value_net)
+                policy_value_net=self.policy_value_net,
+                show_play=False,
+                show_probs_value=False,
+                show_play_UI=True,
+                calculate_performance=True)
 
             win_cnt[winner] += 1
             win_ratio = 1.0*(win_cnt[1] + 0.5*win_cnt[-1]) / n_games # win for 1，tie for 0.5
@@ -319,6 +329,12 @@ class TrainPipeline():
 
                 if rank == 0:
                     before = time.time()
+                    
+                    if (not os.path.exists('model/best_policy.model.index')) or (not os.path.exists('tmp/current_policy.model.index')):
+                        self.policy_value_net.save_model('tmp/current_policy.model')
+                        self.policy_value_net.save_model('tmp/' + str(datetime.now().strftime("%Y%m%d%H%M%S")) + '/current_policy.model')
+                        self.policy_value_net.save_model('model/best_policy.model')
+                        self.policy_value_net.save_model('model/' + str(datetime.now().strftime("%Y%m%d%H%M%S")) + '/best_policy.model')
 
                     while True:
                         dir_kifu_new = os.listdir('play_history/kifu_new')
@@ -382,14 +398,11 @@ class TrainPipeline():
                     evaluate_start_time = time.time()
                     
                     threshold = 0.6
-                    if os.path.exists('model/best_policy.model.index'):
-                        win_ratio, win, lose, tie = self.policy_evaluate(
-                            n_games=10, 
-                            num=num, 
-                            model1='tmp/current_policy.model',
-                            model2='model/best_policy.model')
-                    else:
-                        win_ratio, win, lose, tie = threshold, 0, 0, 0
+                    win_ratio, win, lose, tie = self.policy_evaluate(
+                        n_games=10, 
+                        num=num, 
+                        model1='tmp/current_policy.model',
+                        model2='model/best_policy.model')
                     
                     evaluate_time += time.time() - evaluate_start_time
                     if win_ratio >= threshold:
