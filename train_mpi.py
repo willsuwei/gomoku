@@ -372,6 +372,7 @@ class TrainPipeline():
                     while True:
                         try:
                             self.policy_value_net.save_model('tmp/current_policy.model')
+                            self.policy_value_net.save_model('tmp/' + str(datetime.now().strftime("%Y%m%d%H%M%S")) + '/current_policy.model')
                             break
                         except:
                             print("!" * 100, "Model saving error. Try again in 3 seconds")
@@ -379,19 +380,26 @@ class TrainPipeline():
 
                     # Evaluate
                     evaluate_start_time = time.time()
-                    win_ratio, win, lose, tie = self.policy_evaluate(n_games=10, num=num, model1='tmp/current_policy.model', model2='model_15_15_5/best_policy.model')
-                    evaluate_time += time.time()-evaluate_start_time
-                    if win_ratio >= self.best_win_ratio:
+                    
+                    threshold = 0.6
+                    if os.path.exists('model/best_policy.model.index'):
+                        win_ratio, win, lose, tie = self.policy_evaluate(
+                            n_games=10, 
+                            num=num, 
+                            model1='tmp/current_policy.model',
+                            model2='model/best_policy.model')
+                    else:
+                        win_ratio, win, lose, tie = threshold, 0, 0, 0
+                    
+                    evaluate_time += time.time() - evaluate_start_time
+                    if win_ratio >= threshold:
                         print("New best policy!!!!!!!!")
-                        self.best_win_ratio = win_ratio
-                        # if (self.best_win_ratio == 1.0 and self.pure_mcts_playout_num < 10000):
-                        #     # increase playout num and  reset the win ratio
-                        #     self.pure_mcts_playout_num += 100
-                        #     self.best_win_ratio = 0.0
-
+                        # self.best_win_ratio = win_ratio
+                        
                         while True:
                             try:
                                 self.policy_value_net.save_model('model/best_policy.model')
+                                self.policy_value_net.save_model('model/' + str(datetime.now().strftime("%Y%m%d%H%M%S")) + '/best_policy.model')
                                 break
                             except:
                                 print("!" * 100, "Model saving error. Try again in 3 seconds")
@@ -406,7 +414,7 @@ class TrainPipeline():
                         
                     # Keep 10 mins training interval
                     after = time.time()
-                    if after-before < 60*10:
+                    if after - before < 60 * 10:
                         print('rank {}: '.format(rank), 
                             'Now is {}. Sleep for {} seconds'.format(datetime.now(), 60*10-after+before)
                         )
