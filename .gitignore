@@ -5,3 +5,4 @@ move_count.txt
 __pycache__
 tmp
 model
+.vscode/settings.json
