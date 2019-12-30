@@ -466,7 +466,6 @@ class Game(object):
             if show_play_UI:
                 UI.show_messages("Rank:" + str(rank) + "  Count:" + str(len(states)) + "  Player:" + str(self.board.current_player))
                 UI.render_step(move, self.board.current_player)
-                print("here")
             self.board.do_move(move)
             if show_play:
                 self.graphic(self.board, p1, p2)
