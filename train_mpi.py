@@ -44,7 +44,7 @@ class TrainPipeline():
         self.buffer_size = 500000
         # memory size, should be larger with bigger board
         # in paper it can stores 500,000 games, here 500000 with 11x11 board can store only around 2000 games. (25 steps per game)
-        self.batch_size = 500  # mini-batch size for training. 512 default
+        self.batch_size = 480  # mini-batch size for training. 512 default
         self.data_buffer = deque(maxlen=self.buffer_size)
         self.play_batch_size = 1
         self.game_batch_num = 10000000  # total game to train
@@ -154,7 +154,7 @@ class TrainPipeline():
                 show_play=False,
                 show_probs_value=False,
                 show_play_UI=True,
-                calculate_performance=True)
+                calculate_performance=False)
             
             play_data = list(play_data)[:]
             self.episode_len = len(play_data)
@@ -243,8 +243,7 @@ class TrainPipeline():
         win_cnt = defaultdict(int)
         for i in range(n_games):
             print('rank {}: '.format(rank), 
-                'Evaluating... pure mcts playout: {},  rank: {},  epoch:{}, game:{}'.format(
-                self.pure_mcts_playout_num, rank, num, i)
+                'Evaluating... epoch:{}, game:{}'.format(num, i)
             )
 
             winner, _ = self.game.start_training_play(
@@ -259,7 +258,7 @@ class TrainPipeline():
                 show_play=False,
                 show_probs_value=False,
                 show_play_UI=True,
-                calculate_performance=True)
+                calculate_performance=False)
 
             win_cnt[winner] += 1
             win_ratio = 1.0*(win_cnt[1] + 0.5*win_cnt[-1]) / n_games # win for 1，tie for 0.5
