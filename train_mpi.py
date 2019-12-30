@@ -30,8 +30,8 @@ class TrainPipeline():
         self.game_count = 0  # count total game have played
         self.resnet_block = 19  # num of block structures in resnet
         # params of the board and the game
-        self.board_width = 6
-        self.board_height = 6
+        self.board_width = 15
+        self.board_height = 15
         self.n_in_row = 5
         self.board = Board(width=self.board_width,
                            height=self.board_height,
@@ -39,12 +39,12 @@ class TrainPipeline():
         self.game = Game(self.board)
         # training params
         self.learn_rate = 1e-3
-        self.n_playout = 1  # num of simulations for each move
+        self.n_playout = 400  # num of simulations for each move
         self.c_puct = 5
         self.buffer_size = 500000
         # memory size, should be larger with bigger board
         # in paper it can stores 500,000 games, here 500000 with 11x11 board can store only around 2000 games. (25 steps per game)
-        self.batch_size = 512  # mini-batch size for training. 512 default
+        self.batch_size = 500  # mini-batch size for training. 512 default
         self.data_buffer = deque(maxlen=self.buffer_size)
         self.play_batch_size = 1
         self.game_batch_num = 10000000  # total game to train
@@ -52,7 +52,7 @@ class TrainPipeline():
         # num of simulations used for the pure mcts, which is used as
         # the opponent to evaluate the trained policy
         # only for monitoring the progress of training
-        self.pure_mcts_playout_num = 121
+        # self.pure_mcts_playout_num = 121
         # record the win rate against pure mcts
         # once the win ratio risen to 1,
         # pure mcts playout num will plus 100 and win ratio reset to 0
@@ -393,16 +393,17 @@ class TrainPipeline():
                     # Evaluate
                     evaluate_start_time = time.time()
                     
-                    threshold = 0.6
+                    threshold = 0.5
                     win_ratio, win, lose, tie = self.policy_evaluate(
                         n_games=10, 
                         num=num, 
                         model1='tmp/current_policy.model',
                         model2='model/best_policy.model')
                     
+                    print("Evaluated!!!!!!!!", "-"*200)
                     evaluate_time += time.time() - evaluate_start_time
-                    if win_ratio >= threshold:
-                        print("New best policy!!!!!!!!")
+                    if win_ratio > threshold:
+                        print("New best policy!!!!!!!!", '!'*400)
                         self.best_win_ratio = win_ratio
                         
                         while True:

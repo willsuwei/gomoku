@@ -464,7 +464,7 @@ class Game(object):
 
             # must before do_move
             if show_play_UI:
-                UI.show_messages("Rank:" + str(rank) + "  Count:" + str(len(states)) + "  Player:" + str(self.board.current_player))
+                UI.show_messages("Rank:" + str(rank) + " #" + str(len(states)) + " Start:" + str(start_player))
                 UI.render_step(move, self.board.current_player)
             self.board.do_move(move)
             if show_play:

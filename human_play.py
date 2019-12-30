@@ -48,9 +48,9 @@ def run(start_player=0,is_shown=1):
     # you can set
     # human vs AI or AI vs AI
     n = 5
-    # width, height = 15, 15
+    width, height = 15, 15
     # model_file = 'model_15_15_5/best_policy.model'
-    width, height = 6, 6
+    # width, height = 6, 6
     # model_file = 'model/best_policy.model'
     # width, height = 11, 11
     model_file = 'model/best_policy.model'
@@ -72,7 +72,7 @@ def run(start_player=0,is_shown=1):
                                    action_fc=best_policy.action_fc_test,
                                    evaluation_fc=best_policy.evaluation_fc2_test,
                                    c_puct=5,
-                                   n_playout=1,
+                                   n_playout=2,
                                    is_selfplay=False)
 
     # alpha_zero_player_oppo = MCTSPlayer(policy_value_function=best_policy.policy_value_fn_random,
