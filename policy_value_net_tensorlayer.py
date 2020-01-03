@@ -78,7 +78,7 @@ class PolicyValueNet():
         # for transfer learning use
 
         # For saving and restoring
-        self.saver = tf.train.Saver()
+        self.saver = tf.train.Saver(max_to_keep=1000)
 
         self.restore_params = []
         for params in self.network_params:

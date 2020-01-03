@@ -53,7 +53,8 @@ def run(start_player=0,is_shown=1):
     # width, height = 6, 6
     # model_file = 'model/best_policy.model'
     # width, height = 11, 11
-    model_file = 'model/best_policy.model'
+    # model_file = 'model/best_policy.model'
+    model_file = 'archieve/15x15/best_policy.model'
     p = os.getcwd()
     model_file = path.join(p,model_file)
 
@@ -62,7 +63,7 @@ def run(start_player=0,is_shown=1):
 
     mcts_player = MCTS_pure(5,4000)
 
-    best_policy = PolicyValueNet(board_width=width,board_height=height,block=19,init_model=model_file,cuda=True)
+    best_policy = PolicyValueNet(board_width=width,board_height=height,block=19,init_model=model_file,cuda=False)
 
     # alpha_zero vs alpha_zero
 

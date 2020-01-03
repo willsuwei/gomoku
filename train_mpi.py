@@ -39,12 +39,12 @@ class TrainPipeline():
         self.game = Game(self.board)
         # training params
         self.learn_rate = 1e-3
-        self.n_playout = 400  # num of simulations for each move
+        self.n_playout = 1 + 1  # num of simulations for each move. Minimum 2
         self.c_puct = 5
-        self.buffer_size = 500000
+        self.batch_size = 450  # mini-batch size for training. 512 default. 480 for 15x15
+        self.buffer_size = self.batch_size * 100 # 500000
         # memory size, should be larger with bigger board
         # in paper it can stores 500,000 games, here 500000 with 11x11 board can store only around 2000 games. (25 steps per game)
-        self.batch_size = 480  # mini-batch size for training. 512 default
         self.data_buffer = deque(maxlen=self.buffer_size)
         self.play_batch_size = 1
         self.game_batch_num = 10000000  # total game to train
@@ -80,7 +80,7 @@ class TrainPipeline():
         # else:
         #     cuda = False
 
-        if rank < 3:
+        if rank < 1:
             cuda = True
         else:
             cuda = False
@@ -144,8 +144,8 @@ class TrainPipeline():
 
     def collect_selfplay_data(self, n_games=1):
         for i in range(n_games):
-            print('rank: {}, n_games: {}, start playing...'.format(
-                rank, i))
+            # print('rank: {}, n_games: {}, start playing...'.format(
+            #     rank, i))
             
             winner, play_data = self.game.start_training_play(
                 self.mcts_player,
@@ -153,7 +153,7 @@ class TrainPipeline():
                 rank=rank,
                 show_play=False,
                 show_probs_value=False,
-                show_play_UI=True,
+                show_play_UI=False,
                 calculate_performance=False)
             
             play_data = list(play_data)[:]
@@ -162,8 +162,8 @@ class TrainPipeline():
             play_data = self.get_equi_data(play_data)
             self.data_buffer_tmp.extend(play_data)
             
-            print('rank: {}, n_games: {}, data length: {}, winner: {}'.format(
-                rank, i, self.episode_len, winner))
+            # print('rank: {}, n_games: {}, data length: {}, winner: {}'.format(
+            #     rank, i, self.episode_len, winner))
 
     def policy_update(self, print_out):
         #play_data: [(state, mcts_prob, winner_z), ..., ...]
@@ -262,11 +262,18 @@ class TrainPipeline():
 
             win_cnt[winner] += 1
             win_ratio = 1.0*(win_cnt[1] + 0.5*win_cnt[-1]) / n_games # win for 1，tie for 0.5
+            lost_ratio = 1.0*(win_cnt[2] + 0.5*win_cnt[-1]) / n_games # lost for 1，tie for 0.5
 
             print('rank {}: '.format(rank), 
-                'Win: {},  Lose: {},  Tie:{}, Win Ratio:{}'.format(
-                win_cnt[1], win_cnt[2], win_cnt[-1], win_ratio)
+                'Win: {},  Lose: {},  Tie:{}, Win Ratio:{}, Lost Ratio:{}'.format(
+                win_cnt[1], win_cnt[2], win_cnt[-1], win_ratio, lost_ratio)
             )
+            
+            if (lost_ratio >= 0.5):
+                print('rank {}: '.format(rank), 
+                    'lost ration reached 0.5'
+                )
+                break
         
         return win_ratio, win_cnt[1], win_cnt[2], win_cnt[-1]
 
@@ -315,16 +322,18 @@ class TrainPipeline():
 
         try:
             for num in range(self.game_batch_num):
-                print('rank {}: '.format(rank), 
-                    'Now is {}'.format(datetime.now())
-                )
+                # print('rank {}: '.format(rank), 
+                #     'Now is {}'.format(datetime.now())
+                # )
 
                 if rank == 0:
                     before = time.time()
                     
-                    if (not os.path.exists('model/best_policy.model.index')) or (not os.path.exists('tmp/current_policy.model.index')):
+                    if (not os.path.exists('tmp/current_policy.model.index')):
                         self.policy_value_net.save_model('tmp/current_policy.model')
                         self.policy_value_net.save_model('tmp/' + str(datetime.now().strftime("%Y%m%d%H%M%S")) + '/current_policy.model')
+                    
+                    if (not os.path.exists('model/best_policy.model.index')):
                         self.policy_value_net.save_model('model/best_policy.model')
                         self.policy_value_net.save_model('model/' + str(datetime.now().strftime("%Y%m%d%H%M%S")) + '/best_policy.model')
 
@@ -351,6 +360,7 @@ class TrainPipeline():
                                 data = np.load('play_history/kifu_train/'+file, allow_pickle=True)
                                 self.data_buffer.extend(data.tolist())
                                 self.mymovefile('play_history/kifu_train/'+file, 'play_history/kifu_old/'+file)
+                                os.remove('play_history/kifu_old/'+file) # don't save history
                                 self.game_count += 1
                             except:
                                 print('rank {}: '.format(rank), 
@@ -399,7 +409,7 @@ class TrainPipeline():
                         model1='tmp/current_policy.model',
                         model2='model/best_policy.model')
                     
-                    print("Evaluated!!!!!!!!", "-"*200)
+                    print("Evaluated!!!!!!!!", "-"*400)
                     evaluate_time += time.time() - evaluate_start_time
                     if win_ratio > threshold:
                         print("New best policy!!!!!!!!", '!'*400)
@@ -422,11 +432,11 @@ class TrainPipeline():
                         f.close()
                         
                     # Keep 10 mins training interval
-                    after = time.time()
-                    if after - before < 60 * 10:
-                        print('rank {}: '.format(rank), 
-                            'Now is {}. Sleep for {} seconds'.format(datetime.now(), 60*10-after+before)
-                        )
+                    # after = time.time()
+                    # if after - before < 60 * 10:
+                    #     print('rank {}: '.format(rank), 
+                    #         'Now is {}. Sleep for {} seconds'.format(datetime.now(), 60*10-after+before)
+                    #     )
                         # time.sleep(60*10-after+before)
 
                 else:
@@ -437,7 +447,7 @@ class TrainPipeline():
                                 retore_model_start_time = time.time()
                                 self.policy_value_net.restore_model('model/best_policy.model')
                                 retore_model_time += time.time()-retore_model_start_time
-                                print("rank", rank, ":", 'best model loaded...')
+                                # print("rank", rank, ":", 'best model loaded...')
                                 break
                             except:
                                 # the model is under written
@@ -449,7 +459,7 @@ class TrainPipeline():
                                 retore_model_start_time = time.time()
                                 self.policy_value_net.restore_model('tmp/current_policy.model')
                                 retore_model_time += time.time()-retore_model_start_time
-                                print("rank", rank, ":", 'current model loaded...')
+                                # print("rank", rank, ":", 'current model loaded...')
                                 break
                             except:
                                 # the model is under written
@@ -469,11 +479,11 @@ class TrainPipeline():
                     np.save('play_history/kifu_new/rank_'+str(rank)+'_date_' + str(datetime.now().strftime("%Y%m%d%H%M%S")) + '.npy', np.array(self.data_buffer_tmp))
                     save_data_time += time.time()-save_data_satrt_time
 
-                    print('rank {}: '.format(rank), 'now time : {}'.format((time.time() - start_time) / 3600))
-                    print('rank {}: '.format(rank), 
-                        'rank : {}, restore model time : {}, collect_data_time : {}, save_data_time : {}'
-                        .format(rank, retore_model_time/3600, collect_data_time/3600, save_data_time/3600)
-                    )
+                    # print('rank {}: '.format(rank), 'now time : {}'.format((time.time() - start_time) / 3600))
+                    # print('rank {}: '.format(rank), 
+                    #     'rank : {}, restore model time : {}, collect_data_time : {}, save_data_time : {}'
+                    #     .format(rank, retore_model_time/3600, collect_data_time/3600, save_data_time/3600)
+                    # )
 
         except KeyboardInterrupt:
             print('\n\rquit')

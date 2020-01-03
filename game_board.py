@@ -350,10 +350,10 @@ class Game(object):
                 end, winner = self.board.game_end()
                 if end:
                     if winner != -1:
-                        print("Game end. Winner is player", winner)
+                        # print("Game end. Winner is player", winner)
                         UI.add_score(winner)
-                    else:
-                        print("Game end. Tie")
+                    # else:
+                        # print("Game end. Tie")
                     print(UI.score)
                     print()
 
@@ -368,12 +368,12 @@ class Game(object):
                 calculate_performance=False, # set here
                 isEvaluate=False,
                 model1='tmp/current_policy.model',
-                model2='model_11_11_5/best_policy.model',
+                model2='model/best_policy.model',
                 policy_value_net=None):
-        # show_play=True # set here
-        # show_probs_value=True # set here
-        # show_play_UI=True # set here
-        # calculate_performance=True, # set here
+        # show_play=False # set here
+        # show_probs_value=False # set here
+        # show_play_UI=False # set here
+        calculate_performance=False, # set here
         
         self.board.init_board(start_player=start_player)
 
@@ -384,7 +384,7 @@ class Game(object):
         states, mcts_probs, current_players = [], [], []
         start_time = time.time()
         
-        print("rank", rank, ":", 'Start playing...')
+        # print("rank", rank, ":", 'Start playing...')
         
         while True:
             if self.board.current_player == self.board.players[0]:
@@ -415,52 +415,53 @@ class Game(object):
             mcts_probs.append(move_probs)
             current_players.append(self.board.current_player)
             
-            if calculate_performance:
-                fileName = "move_count.txt"
-                for i in range(3):
-                    lock = None
-                    try:
-                        if os.path.exists(fileName):
-                            lock = FileLock(fileName)
+            # if calculate_performance:
+            #     fileName = "move_count.txt"
+            #     for i in range(3):
+            #         lock = None
+            #         try:
+            #             if os.path.exists(fileName):
+            #                 lock = FileLock(fileName)
                             
-                        if os.path.exists(fileName):
-                            f = open(fileName, "r")
-                            count = int(f.readline().replace("\n", ""))
-                            start_time = float(f.readline().replace("\n", ""))
-                            f.close()
-                        else:
-                            count = 0
-                            # start time has been initialized
+            #             if os.path.exists(fileName):
+            #                 f = open(fileName, "r")
+            #                 count = int(f.readline().replace("\n", ""))
+            #                 start_time = float(f.readline().replace("\n", ""))
+            #                 f.close()
+            #             else:
+            #                 count = 0
+            #                 # start time has been initialized
                         
-                        count += 1
-                        current_time = time.time()
-                        time_elapsed = current_time - start_time
-                        speed = time_elapsed / count
+            #             count += 1
+            #             current_time = time.time()
+            #             time_elapsed = current_time - start_time
+            #             speed = time_elapsed / count
                         
-                        if (count % 100 == 0):
-                            count = 0
-                            start_time = time.time()
-                            current_time = start_time
-                            time_elapsed = 0
-                            speed = 0
+            #             if (count % 100 == 0):
+            #                 count = 0
+            #                 start_time = time.time()
+            #                 current_time = start_time
+            #                 time_elapsed = 0
+            #                 speed = 0
                         
-                        f = open(fileName, "w")
-                        f.write(str(count) + "\n") # count
-                        f.write(str(start_time) + '\n') # start time
-                        f.write(str(current_time) + '\n') # current time
-                        f.write(str(time_elapsed) + '\n') # current time
-                        f.write(str(speed) + '\n') # speed
-                        f.close()
+            #             f = open(fileName, "w")
+            #             f.write(str(count) + "\n") # count
+            #             f.write(str(start_time) + '\n') # start time
+            #             f.write(str(current_time) + '\n') # current time
+            #             f.write(str(time_elapsed) + '\n') # current time
+            #             f.write(str(speed) + '\n') # speed
+            #             f.close()
                         
-                        break
-                    except ValueError as e:
-                        print(e)
-                        print("@" * 100, "write count conflict!!! ValueError", i)
-                    except:
-                        print("!" * 100, "write count conflict!!! Other error", i)
-                    finally:
-                        if lock:
-                            lock.release()
+            #             break
+            #         except ValueError as e:
+            #             print(calculate_performance)
+            #             print(e)
+            #             print("@" * 100, "write count conflict!!! ValueError", i)
+            #         except:
+            #             print("!" * 100, "write count conflict!!! Other error", i)
+            #         finally:
+            #             if lock:
+            #                 lock.release()
 
             # must before do_move
             if show_play_UI:
@@ -482,10 +483,10 @@ class Game(object):
                 player1.reset_player()
                 player2.reset_player()
 
-                if winner != -1:
-                    print("rank", rank, ":", "Game end. Winner is player:", winner, "Count:", len(winners_z))
-                else:
-                    print("rank", rank, ":", "Game end. Tie")
+                # if winner != -1:
+                #     print("rank", rank, ":", "Game end. Winner is player:", winner, "Count:", len(winners_z))
+                # else:
+                #     print("rank", rank, ":", "Game end. Tie")
 
                 break
         
