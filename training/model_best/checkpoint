@@ -1,0 +1,4 @@
+model_checkpoint_path: "policy.model"
+all_model_checkpoint_paths: "..\\model_current\\policy.model"
+all_model_checkpoint_paths: "..\\model_current\\20200606172648\\policy.model"
+all_model_checkpoint_paths: "policy.model"

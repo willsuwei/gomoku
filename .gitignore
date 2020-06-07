@@ -1,8 +1,0 @@
-**/play_history
-**/.DS_Store
-move_count.txt
-**/venv
-__pycache__
-tmp
-model
-.vscode/settings.json

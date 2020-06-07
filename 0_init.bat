@@ -1,3 +1,6 @@
+echo Are you sure you want to initialize the environment?
+pause
+
 call conda remove -y --name tensorflow-gpu_1-15 --all
 call conda create -y -n tensorflow-gpu_1-15 pip python=3.7.1
 

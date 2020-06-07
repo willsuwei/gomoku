@@ -61,9 +61,9 @@ def run(start_player=0,is_shown=1):
     board = Board(width=width, height=height, n_in_row=n)
     game = Game(board)
 
-    mcts_player = MCTS_pure(5,4000)
+    mcts_player = MCTS_pure(5,8000)
 
-    best_policy = PolicyValueNet(board_width=width,board_height=height,block=19,init_model=model_file,cuda=False)
+    best_policy = PolicyValueNet(board_width=width,board_height=height,block=19,init_model=model_file,cuda=True)
 
     # alpha_zero vs alpha_zero
 
@@ -73,7 +73,7 @@ def run(start_player=0,is_shown=1):
                                    action_fc=best_policy.action_fc_test,
                                    evaluation_fc=best_policy.evaluation_fc2_test,
                                    c_puct=5,
-                                   n_playout=2,
+                                   n_playout=400,
                                    is_selfplay=False)
 
     # alpha_zero_player_oppo = MCTSPlayer(policy_value_function=best_policy.policy_value_fn_random,
