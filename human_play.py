@@ -54,7 +54,8 @@ def run(start_player=0,is_shown=1):
     # model_file = 'model/best_policy.model'
     # width, height = 11, 11
     # model_file = 'model/best_policy.model'
-    model_file = 'archieve/15x15/best_policy.model'
+    model_file = 'training/model_best/policy.model'
+    # model_file = 'training/best_policy.model'
     p = os.getcwd()
     model_file = path.join(p,model_file)
 
@@ -69,7 +70,9 @@ def run(start_player=0,is_shown=1):
 
     # best_policy.save_numpy(best_policy.network_all_params)
     # best_policy.load_numpy(best_policy.network_oppo_all_params)
-    alpha_zero_player = MCTSPlayer(policy_value_function=best_policy.policy_value_fn_random,
+    alpha_zero_player = MCTSPlayer(
+        best_policy, model_file,
+        policy_value_function=best_policy.policy_value_fn_random,
                                    action_fc=best_policy.action_fc_test,
                                    evaluation_fc=best_policy.evaluation_fc2_test,
                                    c_puct=5,

@@ -1,0 +1,6 @@
+.vscode/settings.json
+
+**/training
+**/.DS_Store
+**/venv
+**/__pycache__

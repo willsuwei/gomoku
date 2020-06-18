@@ -1,22 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Dec  8 13:02:14 2018
 
-@author: initial-h
-"""
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+'''
+    0 = all messages are logged (default behavior)
+    1 = INFO messages are not printed
+    2 = INFO and WARNING messages are not printed
+    3 = INFO, WARNING, and ERROR messages are not printed
+'''
+
+from tensorflow.python.util import deprecation
+deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 import tensorflow as tf
 import tensorlayer as tl
 from tensorlayer.layers import *
-import os
 import numpy as np
 
 
 class PolicyValueNet():
-    def __init__(self, board_width, board_height,block, init_model=None, transfer_model=None,cuda=False):
+    def __init__(self, board_width, board_height, block, init_model=None, transfer_model=None, cuda=False):
         print()
         print('building network ...')
         print()
+
+        self.model = ""
 
         self.planes_num = 9 # feature planes
         self.nb_block = block # resnet blocks
@@ -95,9 +103,9 @@ class PolicyValueNet():
             print('model loaded!')
         elif transfer_model is not None:
             self.saver_restore.restore(self.session,transfer_model)
-            print('transfer model loaded!')
+            print('transfer model loaded !')
         else:
-            print('can not find saved model, learn from scratch!')
+            print('can not find saved model, learn from scratch !')
         # self.print_params()
 
         # opponent net for evaluating
@@ -243,6 +251,7 @@ class PolicyValueNet():
         restore model from ckpt
         '''
         self.saver.restore(self.session, model_path)
+        self.model = model_path
 
     def network(self,input_states,reuse,is_train,label=''):
         # Define the tensorflow neural network

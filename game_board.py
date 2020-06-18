@@ -357,23 +357,10 @@ class Game(object):
                     print(UI.score)
                     print()
 
-    def start_training_play(self,
-                player1,
-                player2,
-                start_player=0,
-                rank=0,
-                show_play=False, # set here
-                show_probs_value=False, # set here
-                show_play_UI=False, # set here
-                calculate_performance=False, # set here
-                isEvaluate=False,
-                model1='tmp/current_policy.model',
-                model2='model/best_policy.model',
-                policy_value_net=None):
-        # show_play=False # set here
-        # show_probs_value=False # set here
-        # show_play_UI=False # set here
-        calculate_performance=False, # set here
+    def start_training_play(self, player1, player2, start_player = 0, rank = -1):
+        show_play = False # set here
+        show_probs_value = (rank == 1) and False # set here
+        show_play_UI = True # set here
         
         self.board.init_board(start_player=start_player)
 
@@ -384,96 +371,29 @@ class Game(object):
         states, mcts_probs, current_players = [], [], []
         start_time = time.time()
         
-        # print("rank", rank, ":", 'Start playing...')
-        
         while True:
+            time_action_start = time.time()
             if self.board.current_player == self.board.players[0]:
-                if isEvaluate:
-                    while True:
-                        try:
-                            policy_value_net.restore_model(model1)
-                            # print("rank", rank, ":", 'load model 1')
-                            break
-                        except:
-                            print("rank", rank, ":", 'Cannot load model. Retry in 3s...')
-                            time.sleep(3)
                 move, move_probs = player1.get_action(self.board, is_selfplay=False, show_probs_value=show_probs_value)
             else:
-                if isEvaluate:
-                    while True:
-                        try:
-                            policy_value_net.restore_model(model2)
-                            # print("rank", rank, ":", 'load model 2')
-                            break
-                        except:
-                            print("rank", rank, ":", 'Cannot load model. Retry in 3s...')
-                            time.sleep(3)
                 move, move_probs = player2.get_action(self.board, is_selfplay=False, show_probs_value=show_probs_value)
-                
+            time_action_end = time.time()
+
             # store the data
             states.append(self.board.current_state())
             mcts_probs.append(move_probs)
             current_players.append(self.board.current_player)
             
-            if calculate_performance:
-                fileName = "move_count.txt"
-                for i in range(3):
-                    lock = None
-                    try:
-                        if os.path.exists(fileName):
-                            lock = FileLock(fileName)
-                            
-                        if os.path.exists(fileName):
-                            f = open(fileName, "r")
-                            count = int(f.readline().replace("\n", ""))
-                            start_time = float(f.readline().replace("\n", ""))
-                            f.close()
-                        else:
-                            count = 0
-                            # start time has been initialized
-                        
-                        count += 1
-                        current_time = time.time()
-                        time_elapsed = current_time - start_time
-                        speed = time_elapsed / count
-                        
-                        if (count % 100 == 0):
-                            count = 0
-                            start_time = time.time()
-                            current_time = start_time
-                            time_elapsed = 0
-                            speed = 0
-                        
-                        f = open(fileName, "w")
-                        f.write(str(count) + "\n") # count
-                        f.write(str(start_time) + '\n') # start time
-                        f.write(str(current_time) + '\n') # current time
-                        f.write(str(time_elapsed) + '\n') # current time
-                        f.write(str(speed) + '\n') # speed
-                        f.close()
-                        
-                        break
-                    except ValueError as e:
-                        print(calculate_performance)
-                        print(e)
-                        print("@" * 100, "write count conflict!!! ValueError", i)
-                    except:
-                        print("!" * 100, "write count conflict!!! Other error", i)
-                    finally:
-                        if lock:
-                            lock.release()
-
             # must before do_move
             if show_play_UI:
-                UI.show_messages("Rank:" + str(rank) + " #" + str(len(states)) + " Start:" + str(start_player))
-                UI.render_step(move, self.board.current_player)
+                UI.show_messages("Rank:{}. Start:{}. Move:{}. Time:{:.3f}".format(rank, start_player, len(states), (time_action_end - time_action_start)))
+                UI.render_step(move, self.board.current_player, moves = len(states) - 1)
             self.board.do_move(move)
             if show_play:
                 self.graphic(self.board, p1, p2)
             
             end, winner = self.board.game_end()
             if end:
-                # winner from the perspective of the current player of each state
                 winners_z = np.zeros(len(current_players))
                 if winner != -1:
                     winners_z[np.array(current_players) == winner] = 1.0

@@ -1,0 +1,8 @@
+model_checkpoint_path: "policy.model"
+all_model_checkpoint_paths: "..\\..\\model_current\\20200608000811\\policy.model"
+all_model_checkpoint_paths: "..\\20200608000811\\policy.model"
+all_model_checkpoint_paths: "..\\..\\model_current\\20200608000823\\policy.model"
+all_model_checkpoint_paths: "..\\..\\model_current\\policy.model"
+all_model_checkpoint_paths: "..\\..\\model_current\\20200608000853\\policy.model"
+all_model_checkpoint_paths: "..\\policy.model"
+all_model_checkpoint_paths: "policy.model"

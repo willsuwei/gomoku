@@ -1,20 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Dec 12 15:32:27 2018
-
-@author: Tokarev-TT-33
-
-introduction:
-    This is a UI for Gomoku game which does not contain the rule code.
-
-    Set self.UnitSize in __init__() to a different value can change the basic size of all elements
-
-    There are no limits for the value of board_size. So a board of any size can be created(if the system supports).
-    Add limits in self.reset() if necessary.
-"""
 import pygame
 from pygame.locals import *
-
 
 class GUI:
 
@@ -23,7 +9,7 @@ class GUI:
 
         self.score = [0, 0]
         self.BoardSize = board_size
-        self.UnitSize = 40      # the basic size of all elements, try a different value!
+        self.UnitSize = 30      # the basic size of all elements, try a different value!
         self.TestSize = int(self.UnitSize * 0.625)
         self.state = {}         # a dictionary for pieces on board. filled with move-player pairs, such as 34:1
         self.areas = {}         # a dictionary for button areas. filled with name-Rect pairs
@@ -100,7 +86,7 @@ class GUI:
             raise ValueError('player number error')
         self.show_messages()
 
-    def render_step(self, action, player):
+    def render_step(self, action, player, moves = -1):
         """
         render a step of the game
         :param action: 1*2 dimension location value such as (2, 3) or an int type move value such as 34
@@ -120,9 +106,9 @@ class GUI:
                 exit()
 
         if self.last_action_player:     # draw a cross on the last piece to mark the last move
-            self._draw_pieces(self.last_action_player[0], self.last_action_player[1], False)
+            self._draw_pieces(self.last_action_player[0], self.last_action_player[1], False, moves)
 
-        self._draw_pieces(action, player, True)
+        self._draw_pieces(action, player, True, moves)
         self.state[move] = player
         self.last_action_player = move, player
 
@@ -225,7 +211,7 @@ class GUI:
         if update:
             pygame.display.update()
 
-    def _draw_pieces(self, loc, player, last_step=False):
+    def _draw_pieces(self, loc, player, last_step=False, moves = -1):
         """
         draw pieces
         :param loc:  1*2 dimension location value such as (2, 3) or an int type move value such as 34
@@ -249,6 +235,8 @@ class GUI:
         else:
             raise ValueError('num input ValueError')
         pygame.draw.circle(self.screen, c, pos, int(self.UnitSize * 0.45))
+        if moves != -1:
+            self._draw_text(moves, pos, text_height=self.TestSize, font_color=(128, 128, 128))
         if last_step:
             if player == 1:
                 c = (255, 255, 255)

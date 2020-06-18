@@ -111,7 +111,7 @@ class MCTS(object):
     '''
     An implementation of Monte Carlo Tree Search.
     '''
-    def __init__(self, policy_value_fn,action_fc,evaluation_fc, is_selfplay,c_puct=5, n_playout=400):
+    def __init__(self, policy_value_fn, action_fc, evaluation_fc, is_selfplay,c_puct=5, n_playout=400):
         '''
         policy_value_fn: a function that takes in a board state and outputs
             a list of (action, probability) tuples and also a score in [-1, 1]
@@ -211,11 +211,13 @@ class MCTSPlayer(object):
     '''
     AI player based on MCTS
     '''
-    def __init__(self, policy_value_function,action_fc,evaluation_fc,c_puct=5, n_playout=400, is_selfplay=0):
+    def __init__(self, policy_value_net, model, policy_value_function, action_fc,evaluation_fc,c_puct=5, n_playout=400, is_selfplay=0):
         '''
         init some parameters
         '''
         self._is_selfplay = is_selfplay
+        self.policy_value_net = policy_value_net
+        self.model = model
         self.policy_value_function = policy_value_function
         self.action_fc = action_fc
         self.evaluation_fc = evaluation_fc
@@ -247,6 +249,15 @@ class MCTSPlayer(object):
         get an action by mcts
         do not discard all the tree and retain the useful part
         '''
+        if (self.policy_value_net.model != self.model):
+            while True:
+                try:
+                    self.policy_value_net.restore_model(self.model)
+                    break
+                except:
+                    print('Evaluator cannot load model. Will try again in a moment...')
+                    time.sleep(1)
+
         sensible_moves = board.availables
         # the pi vector returned by MCTS as in the alphaGo Zero paper
         move_probs = np.zeros(board.width * board.height)

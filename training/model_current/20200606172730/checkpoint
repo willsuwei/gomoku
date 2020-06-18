@@ -1,3 +1,0 @@
-model_checkpoint_path: "policy.model"
-all_model_checkpoint_paths: "..\\policy.model"
-all_model_checkpoint_paths: "policy.model"
