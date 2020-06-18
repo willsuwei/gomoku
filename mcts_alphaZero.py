@@ -253,6 +253,7 @@ class MCTSPlayer(object):
             while True:
                 try:
                     self.policy_value_net.restore_model(self.model)
+                    # print('Evaluator loaded model {}'.format(self.model))
                     break
                 except:
                     print('Evaluator cannot load model. Will try again in a moment...')

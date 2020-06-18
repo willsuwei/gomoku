@@ -20,7 +20,7 @@ CURRENT_MODEL_PATH = CURRENT_MODEL_DIR + 'policy.model'
 BEST_MODEL_DIR = 'training/model_best/'
 BEST_MODEL_PATH = BEST_MODEL_DIR + 'policy.model'
 EVALUATION_MODEL_DIR = 'training/model_evaluation/'
-EVALUATION_MODEL_PATH = BEST_MODEL_DIR + 'policy.model'
+EVALUATION_MODEL_PATH = EVALUATION_MODEL_DIR + 'policy.model'
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
@@ -299,6 +299,8 @@ class TrainPipeline():
                 os.makedirs('training/model_current')
             if not os.path.exists('training/model_best'):
                 os.makedirs('training/model_best')
+            if not os.path.exists('training/model_evaluation'):
+                os.makedirs('training/model_evaluation')
             if not os.path.exists('training/kifu_new'):
                 os.makedirs('training/kifu_new')
             if not os.path.exists('training/kifu_train'):
