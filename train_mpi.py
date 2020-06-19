@@ -253,7 +253,7 @@ class TrainPipeline():
             
             print('Rank {}: '.format(rank), "Evaluated!")
             
-            threshold = 0.5
+            # threshold = 0.5
             if win_ratio > self.best_win_ratio: # compare with self.best_win_ratio or threshold
                 print("New best policy!!!!!!!!")
                 self.best_win_ratio = win_ratio
@@ -261,6 +261,14 @@ class TrainPipeline():
                     try:
                         self.policy_value_net.save_model(BEST_MODEL_PATH)
                         self.policy_value_net.save_model(BEST_MODEL_DIR + str(datetime.now().strftime("%Y%m%d%H%M%S")) + '/policy.model')
+                        
+                        f = open(BEST_MODEL_DIR + str(datetime.now().strftime("%Y%m%d%H%M%S")) + "/info.txt", "w")
+                        f.write("Win ratio: {}\n".format(win_ratio))
+                        f.write("Win: {}\n".format(win))
+                        f.write("Lose: {}\n".format(lose))
+                        f.write("Tie: {}\n".format(tie))
+                        f.close()
+
                         break
                     except:
                         print('Rank {}: '.format(rank), "Model saving error. Try again in a moment...")
